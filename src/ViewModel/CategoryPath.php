@@ -34,7 +34,7 @@ class CategoryPath implements ArgumentInterface
         $path  = 'ROOT';
         $value = $this->initial;
         foreach ($this->getCurrentCategory()->getParentCategories() as $item) {
-            $value[] = sprintf("filter{$this->param}%s=%s", $path, urlencode($item->getName()));
+            $value[] = sprintf("filter{$this->param}%s=%s", $path, urlencode(trim($item->getName())));
             $path    .= urlencode('/' . $item->getName());
         }
         return implode(',', $value);
