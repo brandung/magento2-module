@@ -2,7 +2,7 @@
 /** @var Magento\Framework\View\Element\Template $block */
 /** @var Omikron\Factfinder\ViewModel\Communication $viewModel */
 $viewModel  = $block->getViewModel();
-$parameters = ((array) $block->getData('communication_parameters')) + $viewModel->getParameters();
+$parameters = $viewModel->getParameters((array) $block->getData('communication_parameters'));
 ?>
 <ff-communication<?php foreach ($parameters as $key => $value) /* @noEscape */ echo sprintf(' %s="%s"', $key, $block->escapeHtmlAttr($value)) ?>></ff-communication>
 <!-- Set FieldRoles -->
@@ -11,17 +11,10 @@ $parameters = ((array) $block->getData('communication_parameters')) + $viewModel
         factfinder.communication.fieldRoles = <?= /* @noEscape */ $viewModel->getFieldRoles() ?>;
     });
 </script>
-<div data-bind="scope: 'ffcommunication'"></div>
 <script type="text/x-magento-init">
     {
-        "*": {
-            "Magento_Ui/js/core/app": {
-                "components": {
-                    "ffcommunication": {
-                        "component": "Omikron_Factfinder/js/view/ffcommunication"
-                    }
-                }
-            }
+        "ff-communication": {
+            "Omikron_Factfinder/js/view/ffcommunication": {}
         }
     }
 </script>

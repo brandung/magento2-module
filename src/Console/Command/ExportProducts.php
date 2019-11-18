@@ -12,11 +12,11 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\App\State;
 use Magento\Framework\Filesystem;
 use Omikron\Factfinder\Model\Api\PushImport;
+use Omikron\Factfinder\Model\Config\CommunicationConfig;
 use Omikron\Factfinder\Model\Export\FeedFactory as FeedGeneratorFactory;
 use Omikron\Factfinder\Model\FtpUploader;
 use Omikron\Factfinder\Model\StoreEmulation;
 use Omikron\Factfinder\Model\Stream\CsvFactory;
-use Omikron\Factfinder\Model\Config\CommunicationConfig;
 
 class ExportProducts extends \Symfony\Component\Console\Command\Command
 {
@@ -64,8 +64,9 @@ class ExportProducts extends \Symfony\Component\Console\Command\Command
         PushImport $pushImport,
         State $state,
         Filesystem $filesystem,
-        string $name = null)
-    {
+        string $name = null
+    ) {
+        parent::__construct();
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
         $this->feedGeneratorFactory = $feedFactory;
@@ -76,7 +77,6 @@ class ExportProducts extends \Symfony\Component\Console\Command\Command
         $this->pushImport = $pushImport;
         $this->state = $state;
         $this->filesystem = $filesystem;
-        parent::__construct($name);
     }
 
     /**
@@ -87,9 +87,8 @@ class ExportProducts extends \Symfony\Component\Console\Command\Command
         $this->setName('factfinder:export:products')->setDescription('Export Factfinder Product Data as CSV file');
 
         $this->addOption('store', 's', InputOption::VALUE_OPTIONAL, 'Store ID or Store Code');
-        $this->addOption('skip-ftp-upload', null, InputOption::VALUE_OPTIONAL, 'Skip FTP Upload');
-        $this->addOption('skip-push-import', null, InputOption::VALUE_OPTIONAL, 'Skip Push Import');
-
+        $this->addOption('skip-ftp-upload', null, InputOption::VALUE_NONE, 'Skip FTP Upload');
+        $this->addOption('skip-push-import', null, InputOption::VALUE_NONE, 'Skip Push Import');
         parent::configure();
     }
 
@@ -112,9 +111,9 @@ class ExportProducts extends \Symfony\Component\Console\Command\Command
         }
         foreach ($storeIds as $storeId) {
             $this->storeEmulation->runInStore(
-                (int)$storeId,
+                (int) $storeId,
                 function () use ($storeId, $input, $output) {
-                    if ($this->communicationConfig->isChannelEnabled((int)$storeId)) {
+                    if ($this->communicationConfig->isChannelEnabled((int) $storeId)) {
                         $filename = "export.{$this->communicationConfig->getChannel()}.csv";
                         $stream = $this->csvFactory->create(['filename' => "factfinder/{$filename}"]);
                         $this->feedGeneratorFactory->create('product')->generate($stream);
@@ -127,7 +126,7 @@ class ExportProducts extends \Symfony\Component\Console\Command\Command
                             $output->writeln("Store $storeId: File $filename has been uploaded to FTP.");
                         }
                         if (!$input->getOption('skip-push-import')) {
-                            if ($this->pushImport->execute((int)$storeId)) {
+                            if ($this->pushImport->execute((int) $storeId)) {
                                 $output->writeln("Store $storeId: Push Import for File $filename has been triggered.");
                             }
                         }
